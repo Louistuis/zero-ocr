@@ -15,6 +15,11 @@ let package = Package(
                 .linkedFramework("Metal"),
                 .linkedFramework("QuartzCore"),
                 .linkedFramework("ScreenCaptureKit"),
+                .linkedFramework("SwiftUI"),
+                .linkedFramework("AVFoundation"),
+                .linkedFramework("NaturalLanguage"),
+                .linkedFramework("CoreImage"),
+                .linkedFramework("WebKit"),
             ]
         )
     ]

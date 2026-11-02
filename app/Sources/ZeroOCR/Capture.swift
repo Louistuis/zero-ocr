@@ -5,6 +5,13 @@ import ScreenCaptureKit
 enum Capture {
     static var allowed: Bool { CGPreflightScreenCaptureAccess() }
 
+    /// The preflight answer is cached for the life of the process, so a permission granted while the
+    /// app runs only shows up after a restart. Asking ScreenCaptureKit directly sees it straight away.
+    static func check() async -> Bool {
+        if allowed { return true }
+        return (try? await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)) != nil
+    }
+
     /// Fetched as the selection starts, so the capture itself is instant on mouse up.
     private static var content: Task<SCShareableContent, Error>?
 

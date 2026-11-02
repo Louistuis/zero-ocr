@@ -23,7 +23,10 @@ final class Setup: NSObject, URLSessionDownloadDelegate {
 
     var needed: Bool { !Store.ready || !Capture.allowed }
 
-    func show() {
+    private var asked = false
+    private var screenOK = Capture.allowed
+
+    func show(permission: Bool = false) {
         if window == nil { build() }
         refresh()
         NSApp.activate(ignoringOtherApps: true)
@@ -107,11 +110,18 @@ final class Setup: NSObject, URLSessionDownloadDelegate {
         let haveModel = Store.ready
         modelRow.done = haveModel
         if session == nil { modelRow.button.isHidden = haveModel }
-        screenRow.done = Capture.allowed
-        screenRow.button.isHidden = Capture.allowed
+        Task { @MainActor in
+            screenOK = await Capture.check()
+            screenRow.done = screenOK
+            screenRow.button.isHidden = screenOK
+            // After the switch is turned on, macOS often only lets the app see it after a restart.
+            screenRow.button.title = asked ? "Restart Zero OCR" : "Allow"
+            screenRow.detail = screenOK ? "Allowed." : asked
+                ? "Turn on Zero OCR in the list, then restart it." : "So Zero OCR can see the area you select."
+            doneButton.title = haveModel && screenOK ? "Start" : "Done"
+            if haveModel, screenOK { poll?.invalidate() }
+        }
         doneButton.isEnabled = haveModel
-        doneButton.title = haveModel && Capture.allowed ? "Start" : "Done"
-        if haveModel, Capture.allowed { poll?.invalidate() }
     }
 
     @objc private func close() {
@@ -123,10 +133,21 @@ final class Setup: NSObject, URLSessionDownloadDelegate {
     // MARK: screen permission
 
     @objc private func allow() {
+        if asked { return Setup.relaunch() }
+        asked = true
+        refresh()
         // The first call shows the system prompt; after that only System Settings can change it.
         if !CGRequestScreenCaptureAccess() {
             NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
         }
+    }
+
+    static func relaunch() {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/sh")
+        p.arguments = ["-c", "sleep 0.7; /usr/bin/open \"\(Bundle.main.bundlePath)\""]
+        try? p.run()
+        NSApp.terminate(nil)
     }
 
     // MARK: download

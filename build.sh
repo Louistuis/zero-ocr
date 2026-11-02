@@ -2,7 +2,7 @@
 # Builds "Zero OCR.app" (ad-hoc signed, Apple Silicon) and, with --dmg, a drag-to-install DMG.
 #   ./build.sh              build into build/
 #   ./build.sh --install    build and copy to ~/Applications, then launch
-#   ./build.sh --dmg        build and package build/Zero-OCR-<version>.dmg
+#   ./build.sh --dmg        build and package build/Zero-OCR.dmg
 # Needs only the Command Line Tools. llama.cpp comes from its official release, pinned below.
 set -euo pipefail
 
@@ -42,6 +42,7 @@ for f in llama-server libllama-server-impl.dylib libllama-common.0.dylib libmtmd
     cp -L "$VENDOR/$f" "$APP/Contents/Helpers/$f"
 done
 cp "$VENDOR/LICENSE" "$APP/Contents/Resources/LICENSE-llama.cpp.txt"
+cp -R "$ROOT/app/Resources/web" "$APP/Contents/Resources/web"   # marked + KaTeX for formatted results
 cp "$ROOT/LICENSE" "$APP/Contents/Resources/LICENSE.txt"
 
 if [ ! -f "$BUILD/AppIcon.icns" ] || [ "$ROOT/app/Tools/makeicon.swift" -nt "$BUILD/AppIcon.icns" ]; then
@@ -114,8 +115,10 @@ $(service readDocument "Copy as Markdown with Zero OCR")
 PLIST
 
 echo "▸ Ad-hoc signing"
+# An ad-hoc signature's default requirement is its own hash, so macOS would forget the Screen
+# Recording permission on every update. Requiring only the bundle identifier keeps it.
 for f in "$APP/Contents/Helpers/"*; do codesign --force --sign - "$f" 2>/dev/null; done
-codesign --force --sign - "$APP" 2>/dev/null
+codesign --force --sign - --identifier com.lou15.zeroocr -r='designated => identifier "com.lou15.zeroocr"' "$APP" 2>/dev/null
 codesign --verify --deep "$APP"
 
 case "${1:-}" in
@@ -131,7 +134,7 @@ case "${1:-}" in
     echo "✓ installed to ~/Applications"
     ;;
 --dmg)
-    DMG="$BUILD/Zero-OCR-$VERSION.dmg"
+    DMG="$BUILD/Zero-OCR.dmg"   # one name for every version, so releases/latest/download/Zero-OCR.dmg always works
     STAGE="$BUILD/dmg"
     rm -rf "$STAGE" "$DMG"; mkdir -p "$STAGE"
     cp -R "$APP" "$STAGE/"

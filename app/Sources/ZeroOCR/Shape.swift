@@ -17,7 +17,7 @@ enum Shape {
         pattern: "(?:<otsl>)?\\s*((?:<(?:fcel|ecel|lcel|ucel|xcel|ched|rhed|srow)>[^<]*(?:<nl>\\s*)?)+)\\s*(?:</otsl>)?")
     private static let tokenWithText = try! NSRegularExpression(pattern: "<(fcel|ecel|lcel|ucel|xcel|ched|rhed|srow|nl)>([^<]*)")
     /// Inline math the model uses for plain things like \(1.5\%\); real formulas (with commands) stay.
-    private static let simpleMath = try! NSRegularExpression(pattern: "\\\\\\(\\s*((?:[\\w\\s.,:+\\-/=]|\\\\[%$&#_])+?)\\s*\\\\\\)")
+    private static let simpleMath = try! NSRegularExpression(pattern: "\\\\\\(\\s*((?:[\\w\\s.,:;+\\-/=()%<>]|\\\\[%$&#_])+?)\\s*\\\\\\)")
 
     static func apply(_ raw: String, mode: Mode) -> Shaped {
         if mode == .formula { return Shaped(text: stripMath(raw)) }

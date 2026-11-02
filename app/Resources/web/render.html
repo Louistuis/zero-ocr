@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="katex.min.css">
+<script src="katex.min.js"></script>
+<script src="auto-render.min.js"></script>
+<script src="marked.min.js"></script>
+<style>
+  :root { color-scheme: light dark; --fg: rgba(0,0,0,.88); --dim: rgba(0,0,0,.5); --line: rgba(0,0,0,.12); --code: rgba(0,0,0,.05); }
+  @media (prefers-color-scheme: dark) { :root { --fg: rgba(255,255,255,.92); --dim: rgba(255,255,255,.55); --line: rgba(255,255,255,.14); --code: rgba(255,255,255,.07); } }
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  body { font: 13px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; color: var(--fg); -webkit-font-smoothing: antialiased; }
+  #out { padding: 1px 0; word-wrap: break-word; }
+  #out > :first-child { margin-top: 0; }
+  #out > :last-child { margin-bottom: 0; }
+  h1, h2, h3, h4 { font-family: "SF Pro Display", -apple-system, sans-serif; line-height: 1.25; margin: .7em 0 .35em; letter-spacing: -.01em; }
+  h1 { font-size: 1.35em; } h2 { font-size: 1.2em; } h3 { font-size: 1.08em; } h4 { font-size: 1em; }
+  p { margin: .45em 0; }
+  ul, ol { margin: .4em 0; padding-left: 1.4em; }
+  li { margin: .15em 0; }
+  code { font: 12px ui-monospace, "SF Mono", Menlo, monospace; background: var(--code); padding: .1em .35em; border-radius: 5px; }
+  pre { background: var(--code); padding: 8px 10px; border-radius: 9px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  blockquote { margin: .5em 0; padding-left: .8em; border-left: 3px solid var(--line); color: var(--dim); }
+  table { border-collapse: collapse; margin: .5em 0; font-size: 12px; font-variant-numeric: tabular-nums; width: max-content; max-width: 100%; }
+  th, td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { font-weight: 600; background: var(--code); }
+  .tablewrap { overflow-x: auto; }
+  .katex { font-size: 1.08em; }
+  .katex-display { margin: .5em 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+  .formula .katex-display { margin: .2em 0; }
+  .formula .katex { font-size: 1.35em; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script>
+  const out = document.getElementById("out")
+  const DELIMS = [
+    { left: "$$", right: "$$", display: true },
+    { left: "\\[", right: "\\]", display: true },
+    { left: "\\(", right: "\\)", display: false },
+    { left: "$", right: "$", display: false },
+  ]
+  marked.use({ gfm: true, breaks: false })
+
+  // Keep math away from the Markdown parser (it eats backslashes and underscores), then put it back.
+  function protectMath(src) {
+    const stash = []
+    const re = /\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$(?!\s)[^$\n]+?\$/g
+    const text = src.replace(re, (m) => { stash.push(m); return `@@MATH${stash.length - 1}@@` })
+    return { text, stash }
+  }
+
+  function report() {
+    const h = Math.ceil(out.getBoundingClientRect().height)
+    window.webkit?.messageHandlers?.size?.postMessage(h)
+  }
+
+  // mode: doc | table | formula | text. html: the table grid when there is one.
+  window.render = (src, mode, html) => {
+    if (mode === "formula") {
+      out.className = "formula"
+      try { katex.render(src.trim(), out, { displayMode: true, throwOnError: false }) }
+      catch { out.textContent = src }
+    } else if (mode === "table" && html) {
+      out.className = ""
+      out.innerHTML = `<div class="tablewrap">${html}</div>`
+    } else {
+      out.className = ""
+      const { text, stash } = protectMath(src)
+      let h = marked.parse(text)
+      h = h.replace(/@@MATH(\d+)@@/g, (_, i) => stash[+i].replace(/&/g, "&amp;").replace(/</g, "&lt;"))
+      out.innerHTML = h.replace(/<table>/g, '<div class="tablewrap"><table>').replace(/<\/table>/g, "</table></div>")
+      renderMathInElement(out, { delimiters: DELIMS, throwOnError: false })
+    }
+    report()
+  }
+  new ResizeObserver(report).observe(out)
+</script>
+</body>
+</html>
