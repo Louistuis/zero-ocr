@@ -1,0 +1,9 @@
+build/
+app/.build/
+app/vendor/
+bench/
+legacy/
+site/.wrangler/
+site/node_modules/
+.DS_Store
+.claude/

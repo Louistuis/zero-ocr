@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zero OCR</title>
+<meta name="description" content="Select any text on your Mac's screen and it lands on your clipboard. Xiaomi-OCR-0, running entirely on your Mac. Free and MIT licensed.">
+<meta property="og:title" content="Zero OCR">
+<meta property="og:description" content="Select any text on your Mac's screen and it lands on your clipboard. On-device, free, MIT licensed.">
+<meta property="og:image" content="https://zero.lou15.com/icon.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #000;
+  --fg: #f5f5f7;
+  --dim: #a1a1a6;
+  --faint: #6e6e73;
+  --line: rgba(255, 255, 255, 0.09);
+  --card: #0d0d0f;
+  --display: "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --text: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --rounded: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 17px/1.5 var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 15px/1 var(--display); letter-spacing: -0.01em; }
+.brand img { width: 26px; height: 26px; }
+.gh {
+  display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px;
+  border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04);
+  font: 500 14px/1 var(--text); color: var(--fg); transition: background 0.2s, border-color 0.2s;
+}
+.gh:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.18); }
+.gh svg { width: 16px; height: 16px; fill: currentColor; }
+
+header { text-align: center; padding: 72px 0 40px; }
+h1 {
+  font: 700 clamp(40px, 7vw, 76px)/1.02 var(--display);
+  letter-spacing: -0.035em; margin: 0 auto; max-width: 12ch;
+}
+.lede { color: var(--dim); font-size: clamp(17px, 2.2vw, 21px); line-height: 1.45; max-width: 34em; margin: 22px auto 0; }
+kbd {
+  font: 600 0.88em/1 var(--rounded); color: var(--fg); padding: 3px 7px 4px; border-radius: 7px;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); white-space: nowrap;
+}
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 9px; height: 48px; padding: 0 24px; border-radius: 999px;
+  font: 600 16px/1 var(--text); transition: transform 0.2s, background 0.2s, box-shadow 0.3s;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--fg); color: #000; box-shadow: 0 0 0 0 rgba(160, 120, 255, 0); }
+.btn.primary:hover { box-shadow: 0 0 40px 2px rgba(140, 110, 255, 0.35); }
+.btn.secondary { border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); }
+.btn.secondary:hover { background: rgba(255, 255, 255, 0.09); }
+.btn svg { width: 18px; height: 18px; fill: currentColor; }
+.fine { color: var(--faint); font-size: 13.5px; margin-top: 16px; }
+
+/* The demo: a Mac screen with a notch, drawn in CSS. */
+.stagewrap { padding: 28px 0 8px; }
+.screen {
+  position: relative; aspect-ratio: 16 / 10; width: 100%; max-width: 920px; margin: 0 auto;
+  border-radius: 22px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(120% 90% at 50% 0%, #17171c 0%, #0b0b0e 60%, #070709 100%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 40px 120px -40px rgba(120, 90, 255, 0.25);
+}
+.menubar {
+  position: absolute; inset: 0 0 auto 0; height: 4.2%; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.2%; font: 600 clamp(7px, 1.2vw, 12px)/1 var(--text); color: rgba(255, 255, 255, 0.75); z-index: 1;
+}
+.menubar span { opacity: 0.8; margin-right: 1.4em; font-weight: 500; }
+.menubar span:first-child { font-weight: 700; opacity: 1; }
+.notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 17%; height: 4.6%;
+  background: #000; border-radius: 0 0 1.1vw 1.1vw; z-index: 4;
+}
+.window {
+  position: absolute; left: 13%; top: 15%; width: 74%; height: 74%; border-radius: 12px;
+  background: #f6f5f1; color: #1d1d1f; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8);
+  padding: 4.5% 6%; overflow: hidden;
+}
+.window .dots { position: absolute; top: 3.2%; left: 2.4%; display: flex; gap: 6px; }
+.window .dots i { width: 9px; height: 9px; border-radius: 50%; background: #d9d6cf; display: block; }
+.paper { font: clamp(7.5px, 1.45vw, 15px)/1.55 "New York", ui-serif, Georgia, serif; }
+.paper h3 { font: 700 1.5em/1.2 var(--display); margin: 0.6em 0 0.5em; letter-spacing: -0.02em; }
+.paper p { margin: 0 0 0.8em; color: #3a3a3c; }
+.paper .grab { color: #1d1d1f; }
+
+.cursor { position: absolute; width: 18px; height: 18px; z-index: 6; pointer-events: none; opacity: 0; }
+.cursor::before, .cursor::after { content: ""; position: absolute; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6); }
+.cursor::before { left: 8px; top: 0; width: 2px; height: 18px; }
+.cursor::after { top: 8px; left: 0; height: 2px; width: 18px; }
+
+@property --spin { syntax: "<angle>"; initial-value: 0deg; inherits: true; }
+.frame {
+  position: absolute; z-index: 5; pointer-events: none; opacity: 0;
+  --spin: 0deg; animation: spin 7s linear infinite;
+  --neon: conic-gradient(from var(--spin), #8e42e9, #6769e8, #47abe1, #68def3, #59aeda, #5d57ee, #8e41e3, #c75976, #d1a036, #eab748, #d99c59, #d875a1, #b64ad7, #8e42e9);
+}
+@keyframes spin { to { --spin: 360deg; } }
+.frame .body { position: absolute; inset: 0; border-radius: inherit; background: #000; opacity: var(--fill, 0); }
+.frame .ring, .frame .halo, .frame .inner {
+  position: absolute; border-radius: inherit; background: var(--neon);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.frame .ring { inset: 0; padding: 2px; }
+.frame .inner { inset: 0; padding: 7px; filter: blur(7px); opacity: 0.85; }
+.frame .halo { inset: -6px; padding: 8px; filter: blur(12px); opacity: 0.9; }
+.frame .ring::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.frame .content {
+  position: absolute; inset: 0; padding: var(--pt, 30px) 18px 12px; opacity: 0; display: flex; flex-direction: column;
+  font: 500 clamp(8px, 1.3vw, 13px)/1.4 var(--text); color: rgba(255, 255, 255, 0.94); overflow: hidden;
+}
+.frame .out { white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.frame .bars { display: flex; flex-direction: column; gap: 0.62em; margin-top: 0.5em; }
+.frame .bar { height: 0.72em; border-radius: 5px; background: rgba(255, 255, 255, 0.075); position: relative; overflow: hidden; }
+.frame .bar::after {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 60%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent);
+  animation: swoosh 1.45s linear infinite; animation-delay: calc(var(--i) * -0.15s);
+}
+@keyframes swoosh { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+.frame .foot { margin-top: auto; padding-top: 0.6em; font-size: 0.86em; color: rgba(255, 255, 255, 0.55); display: flex; align-items: center; gap: 0.45em; }
+.frame .foot b { color: #fff; font-weight: 600; }
+.check { width: 1.05em; height: 1.05em; border-radius: 50%; background: #fff; display: inline-grid; place-items: center; color: #000; font-size: 0.7em; font-weight: 800; }
+
+.caption { text-align: center; color: var(--faint); font-size: 13.5px; margin-top: 16px; }
+
+section.points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 88px 0 0; border-radius: 20px; overflow: hidden; background: var(--line); border: 1px solid var(--line); }
+.point { background: #050506; padding: 30px 28px 32px; }
+.point .k { font: 600 12px/1 var(--rounded); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.point h2 { font: 650 22px/1.2 var(--display); letter-spacing: -0.02em; margin: 14px 0 8px; }
+.point p { margin: 0; color: var(--dim); font-size: 15.5px; line-height: 1.5; }
+
+section.keys { margin: 88px auto 0; max-width: 640px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 4px; border-bottom: 1px solid var(--line); font-size: 16px; }
+.row:first-child { border-top: 1px solid var(--line); }
+.row span:first-child { color: var(--dim); }
+.row code { font: 13.5px/1.4 var(--mono); color: var(--fg); }
+
+section.install { margin: 88px auto 0; max-width: 640px; text-align: center; }
+h2.t { font: 700 clamp(28px, 4vw, 38px)/1.1 var(--display); letter-spacing: -0.03em; margin: 0 0 14px; }
+.install p { color: var(--dim); margin: 0 auto 18px; max-width: 32em; font-size: 16px; }
+.cmd {
+  display: flex; align-items: center; gap: 10px; text-align: left; background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 12px 12px 18px; font: 13.5px/1.5 var(--mono); color: var(--fg); overflow: hidden;
+}
+.cmd code { flex: 1; min-width: 0; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.cmd code::-webkit-scrollbar { display: none; }
+.copy {
+  flex: none; height: 30px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05);
+  color: var(--fg); font: 500 13px/1 var(--text); cursor: pointer;
+}
+.copy:hover { background: rgba(255, 255, 255, 0.1); }
+
+footer { margin: 110px 0 0; padding: 26px 0 40px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13.5px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+footer a { color: var(--dim); }
+footer a:hover { color: var(--fg); }
+
+@media (max-width: 760px) {
+  header { padding: 44px 0 28px; }
+  section.points { grid-template-columns: 1fr; margin-top: 64px; }
+  section.keys, section.install { margin-top: 64px; }
+  .window { left: 6%; width: 88%; padding: 5% 6%; }
+  .row { font-size: 15px; }
+  .screen { border-radius: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .frame { animation: none; } .frame .bar::after { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="/"><img src="/icon.png" alt="">Zero OCR</a>
+    <a class="gh" href="https://github.com/Louistuis/zero-ocr" aria-label="Zero OCR on GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </nav>
+
+  <header>
+    <h1>Read any text on your screen.</h1>
+    <p class="lede">Press <kbd>⇧⌘2</kbd>, drag over anything, and the text is on your clipboard. Xiaomi-OCR-0 reads it entirely on your Mac.</p>
+    <div class="cta">
+      <a class="btn primary" id="dl" href="https://github.com/Louistuis/zero-ocr/releases/latest/download/Zero-OCR-1.0.0.dmg">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.97-3.46-1.07-1.57-2.74-1.78-3.33-1.8-1.42-.14-2.77.83-3.49.83-.72 0-1.83-.81-3.01-.79-1.55.02-2.98.9-3.78 2.29-1.61 2.8-.41 6.94 1.16 9.21.77 1.11 1.68 2.36 2.88 2.31 1.16-.05 1.59-.75 2.99-.75 1.4 0 1.79.75 3.01.72 1.24-.02 2.03-1.13 2.79-2.25.88-1.29 1.24-2.53 1.26-2.6-.03-.01-2.42-.93-2.45-3.71zM14.07 5.83c.64-.77 1.07-1.85.95-2.92-.92.04-2.03.61-2.69 1.38-.59.68-1.11 1.77-.97 2.82 1.02.08 2.07-.52 2.71-1.28z"/></svg>
+        Download for Mac
+      </a>
+      <a class="btn secondary" href="https://github.com/Louistuis/zero-ocr">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+    <p class="fine">Free and MIT licensed · Apple Silicon, macOS 14+ · 12 MB, plus the model once (837 MB)</p>
+  </header>
+
+  <div class="stagewrap">
+    <div class="screen" id="screen" aria-label="Animation: a selection on screen glows, flies up into the notch and turns into text">
+      <div class="menubar"><div><span>Preview</span><span>File</span><span>Edit</span><span>View</span></div><div><span>Mon 2 Nov</span></div></div>
+      <div class="notch" id="notch"></div>
+      <div class="window">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="paper">
+          <h3>Harbour log, winter</h3>
+          <p class="grab" id="grab">The lighthouse keeper logged every passing ship in a leather notebook. On the night of 14 March 1987 he recorded a freighter named Halvard, bound for Rotterdam with 2,340 tonnes of timber.</p>
+          <p>The weather was poor: wind from the northwest at 38 knots, visibility under two nautical miles. He noted that the vessel's starboard light flickered twice before vanishing behind the headland.</p>
+        </div>
+      </div>
+      <div class="cursor" id="cursor"></div>
+      <div class="frame" id="frame">
+        <div class="halo"></div><div class="body"></div><div class="inner"></div><div class="ring"></div>
+        <div class="content" id="content">
+          <div class="out" id="out"></div>
+          <div class="bars" id="bars"><div class="bar" style="--i:0;width:92%"></div><div class="bar" style="--i:1;width:78%"></div><div class="bar" style="--i:2;width:56%"></div></div>
+          <div class="foot" id="foot">Reading</div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">The real thing is a Metal shader. This is the same idea in CSS.</p>
+  </div>
+
+  <section class="points">
+    <div class="point"><div class="k">Native</div><h2>Everywhere you need it</h2><p>A shortcut for the screen, Quick Actions for images and PDFs in Finder, Services in every app, and <code>zocr</code> in Terminal.</p></div>
+    <div class="point"><div class="k">Private</div><h2>Nothing leaves your Mac</h2><p>The model runs on your Mac's GPU. No account, no upload, no analytics. It works offline.</p></div>
+    <div class="point"><div class="k">Fast</div><h2>Ready before you let go</h2><p>The model wakes while you select and reads at about 80 tokens a second, then sleeps to free its memory.</p></div>
+  </section>
+
+  <section class="keys" aria-label="Shortcuts">
+    <div class="row"><span>Text</span><kbd>⇧⌘2</kbd></div>
+    <div class="row"><span>Markdown, with tables and LaTeX</span><kbd>⌥⇧⌘2</kbd></div>
+    <div class="row"><span>Table that pastes as a grid</span><kbd>⌃⇧⌘2</kbd></div>
+    <div class="row"><span>A whole window</span><span>Click instead of dragging</span></div>
+    <div class="row"><span>Terminal</span><code>zocr -d paper.pdf</code></div>
+  </section>
+
+  <section class="install">
+    <h2 class="t">Opening it the first time</h2>
+    <p>Zero OCR is open source and not signed with an Apple developer certificate, so macOS asks once. Open System Settings, Privacy &amp; Security, and click Open Anyway. Or run:</p>
+    <div class="cmd"><code id="cmd">xattr -dr com.apple.quarantine "/Applications/Zero OCR.app"</code><button class="copy" id="copy" type="button">Copy</button></div>
+  </section>
+
+  <footer>
+    <span>MIT © 2026 Louis Nordbø · <a href="https://huggingface.co/xiaomi-research/Xiaomi-OCR-0">Xiaomi-OCR-0</a> (Apache-2.0) via <a href="https://github.com/ggml-org/llama.cpp">llama.cpp</a></span>
+    <span><a href="https://github.com/Louistuis/zero-ocr">GitHub</a> · <a href="https://lou15.com">lou15.com</a></span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  // Copy button
+  const copy = document.getElementById("copy")
+  copy.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(document.getElementById("cmd").textContent); copy.textContent = "Copied" }
+    catch { copy.textContent = "Select it" }
+    setTimeout(() => (copy.textContent = "Copy"), 1600)
+  })
+
+  // The demo. Same choreography as the app: frame follows the drag, collapses to a dot, gets
+  // dragged up into the notch as a streak, opens into the island, streams the text, then retracts.
+  const screen = document.getElementById("screen"), frame = document.getElementById("frame")
+  const grab = document.getElementById("grab"), notch = document.getElementById("notch")
+  const cursor = document.getElementById("cursor"), content = document.getElementById("content")
+  const out = document.getElementById("out"), bars = document.getElementById("bars"), foot = document.getElementById("foot")
+  const TEXT = grab.textContent.trim()
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches
+
+  const spring = (x) => ({ x, v: 0 })
+  const step = (s, target, dt, omega, zeta = 1) => {
+    for (let left = dt; left > 0; left -= 1 / 480) {
+      const h = Math.min(left, 1 / 480)
+      s.v += (omega * omega * (target - s.x) - 2 * zeta * omega * s.v) * h
+      s.x += s.v * h
+    }
+  }
+  let L = spring(0), T = spring(0), R = spring(0), B = spring(0), gain = spring(0), fill = spring(0), show = spring(0)
+  let phase = "rest", t0 = 0, clock = 0, last = 0, typed = 0
+
+  const box = () => {
+    const s = screen.getBoundingClientRect(), g = grab.getBoundingClientRect(), n = notch.getBoundingClientRect()
+    const sel = { l: g.left - s.left - 8, t: g.top - s.top - 6, r: g.right - s.left + 8, b: g.bottom - s.top + 6 }
+    const w = Math.min(Math.max(n.width * 2.3, 250), s.width * 0.8)
+    const lines = Math.max(1, Math.ceil(Math.min(typed, TEXT.length) / Math.max(1, (w - 36) / 6.6)))
+    const fs = parseFloat(getComputedStyle(content).fontSize)
+    const ih = n.height + 18 + (typed ? Math.min(lines, 4) * fs * 1.4 : 0) + (phase === "done" ? 0 : (typed ? 1 : 3) * fs * 1.34) + fs * 2.2
+    return { s, sel, n: { cx: n.left - s.left + n.width / 2, w: n.width, h: n.height }, island: { l: -w / 2, w, h: ih } }
+  }
+  const go = (p) => { phase = p; t0 = clock }
+
+  function frameFn(now) {
+    const dt = last ? Math.min((now - last) / 1000, 1 / 20) : 1 / 60
+    last = now
+    clock += dt
+    const since = clock - t0
+    const { s, sel, n, island } = box()
+    let rTop = 10, rBot = 10
+
+    if (phase === "rest") {
+      gain.x = 0; fill.x = 0; show.x = 0; typed = 0
+      cursor.style.opacity = since > 0.3 ? 1 : 0
+      cursor.style.transform = `translate(${sel.l - 9}px, ${sel.t - 9}px)`
+      if (since > 0.9) { L = spring(sel.l); T = spring(sel.t); R = spring(sel.l); B = spring(sel.t); go("drag") }
+    } else if (phase === "drag") {
+      const u = Math.min(1, since / 1.1), e = 1 - Math.pow(1 - u, 3)
+      L.x = sel.l; T.x = sel.t; R.x = sel.l + (sel.r - sel.l) * e; B.x = sel.t + (sel.b - sel.t) * e
+      cursor.style.transform = `translate(${R.x - 9}px, ${B.x - 9}px)`
+      step(gain, 1, dt, 14)
+      if (u >= 1) { cursor.style.opacity = 0; go("hold") }
+    } else if (phase === "hold") {
+      step(gain, 1.25, dt, 16)
+      if (since > 0.25) go("collapse")
+    } else if (phase === "collapse") {
+      const cx = (L.x + R.x) / 2, cy = (T.x + B.x) / 2
+      step(L, cx - 6, dt, 14); step(R, cx + 6, dt, 14); step(T, cy - 6, dt, 14); step(B, cy + 6, dt, 14)
+      rTop = rBot = Math.min(R.x - L.x, B.x - T.x) / 2
+      if (R.x - L.x < 20 && B.x - T.x < 20) go("fly")
+    } else if (phase === "fly") {
+      const ty = Math.max(n.h / 2, 8)
+      step(L, n.cx - 6, dt, 10); step(R, n.cx + 6, dt, 10); step(T, ty - 6, dt, 15); step(B, ty + 6, dt, 8)
+      rTop = rBot = Math.min(R.x - L.x, B.x - T.x) / 2
+      if (Math.abs(T.x - (ty - 6)) < 8) go("island")
+    } else if (phase === "island" || phase === "done") {
+      step(L, n.cx + island.l, dt, 13, 0.78); step(R, n.cx + island.l + island.w, dt, 13, 0.78)
+      step(T, 0, dt, 16); step(B, island.h, dt, 12, 0.74)
+      step(fill, 1, dt, 14)
+      const w = R.x - L.x, h = B.x - T.x
+      step(show, w > island.w * 0.8 && h > island.h * 0.6 ? 1 : 0, dt, 18)
+      step(gain, 1 + (phase === "done" ? 0 : 0.1 * Math.sin(clock * 3.2)), dt, 10)
+      rTop = Math.min(Math.min(w, h) / 2, Math.max(0, T.x) + 4); rBot = Math.min(Math.min(w, h) / 2, 18)
+      if (phase === "island" && since > 1.0) typed = Math.min(TEXT.length, typed + dt * 190)
+      if (phase === "island" && typed >= TEXT.length) { go("done"); foot.innerHTML = '<span class="check">✓</span><b>Copied 32 words</b> · 1.4 s' }
+      if (phase === "done" && since > 2.8) go("retract")
+    } else if (phase === "retract") {
+      step(L, n.cx - n.w / 2, dt, 14); step(R, n.cx + n.w / 2, dt, 14); step(T, 0, dt, 14); step(B, n.h, dt, 15)
+      step(show, 0, dt, 26); step(gain, 0, dt, 9)
+      rTop = 0; rBot = Math.min((R.x - L.x) / 2, (B.x - T.x) / 2, 14)
+      if (since > 0.7) { step(fill, 0, dt, 30); if (since > 1.0) { go("rest"); foot.textContent = "Reading" } }
+    }
+
+    const w = Math.max(R.x - L.x, 1), h = Math.max(B.x - T.x, 1)
+    frame.style.cssText = `left:${L.x}px;top:${T.x}px;width:${w}px;height:${h}px;border-radius:${rTop}px ${rTop}px ${rBot}px ${rBot}px;opacity:${Math.min(1, Math.max(gain.x, fill.x))};--fill:${fill.x};filter:brightness(${0.75 + Math.max(gain.x, 0) * 0.35})`
+    content.style.opacity = Math.max(0, Math.min(1, show.x))
+    content.style.setProperty("--pt", n.h + 10 + "px")
+    out.textContent = TEXT.slice(0, Math.floor(typed))
+    bars.style.display = phase === "done" ? "none" : ""
+    ;[...bars.children].forEach((b, i) => (b.style.display = typed && i > 0 ? "none" : ""))
+    requestAnimationFrame(frameFn)
+  }
+
+  if (reduce) {
+    typed = TEXT.length; phase = "done"
+    const { n, island } = box()
+    frame.style.cssText = `left:${n.cx + island.l}px;top:0;width:${island.w}px;height:${island.h}px;border-radius:0 0 18px 18px;opacity:1;--fill:1`
+    content.style.opacity = 1
+    content.style.setProperty("--pt", n.h + 10 + "px")
+    out.textContent = TEXT
+    bars.style.display = "none"
+    foot.innerHTML = '<span class="check">✓</span><b>Copied 32 words</b> · 1.4 s'
+  } else {
+    requestAnimationFrame(frameFn)
+  }
+})()
+</script>
+</body>
+</html>
