@@ -50,9 +50,11 @@ nav { display: flex; align-items: center; justify-content: space-between; height
 .gh svg { width: 16px; height: 16px; fill: currentColor; }
 
 header { text-align: center; padding: 72px 0 40px; }
+.hero-title { display: flex; align-items: center; justify-content: center; gap: clamp(18px, 3vw, 34px); }
+.appicon { width: clamp(84px, 11vw, 132px); height: auto; flex: none; filter: drop-shadow(0 18px 40px rgba(130, 90, 255, 0.35)); }
 h1 {
   font: 700 clamp(40px, 7vw, 76px)/1.02 var(--display);
-  letter-spacing: -0.035em; margin: 0 auto; max-width: 12ch;
+  letter-spacing: -0.035em; margin: 0; max-width: 12ch; text-align: left;
 }
 .lede { color: var(--dim); font-size: clamp(17px, 2.2vw, 21px); line-height: 1.45; max-width: 34em; margin: 22px auto 0; }
 kbd {
@@ -179,17 +181,78 @@ kbd {
 
 .caption { text-align: center; color: var(--faint); font-size: 13.5px; margin-top: 16px; }
 
-section.points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 88px 0 0; border-radius: 20px; overflow: hidden; background: var(--line); border: 1px solid var(--line); }
-.point { background: #050506; padding: 30px 28px 32px; }
-.point .k { font: 600 12px/1 var(--rounded); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
-.point h2 { font: 650 22px/1.2 var(--display); letter-spacing: -0.02em; margin: 14px 0 8px; }
-.point p { margin: 0; color: var(--dim); font-size: 15.5px; line-height: 1.5; }
+/* Feature tiles */
+.reveal { opacity: 1; }
+.js .reveal { opacity: 0; transform: translateY(28px) scale(0.985); transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: var(--d, 0s); }
+.js .reveal.in { opacity: 1; transform: none; }
 
-section.keys { margin: 88px auto 0; max-width: 640px; }
-.row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 4px; border-bottom: 1px solid var(--line); font-size: 16px; }
-.row:first-child { border-top: 1px solid var(--line); }
-.row span:first-child { color: var(--dim); }
-.row code { font: 13.5px/1.4 var(--mono); color: var(--fg); }
+section.features { margin: 120px 0 0; }
+.sechead { text-align: center; margin: 0 auto 44px; max-width: 720px; }
+.sechead h2 { font: 700 clamp(32px, 5vw, 56px)/1.05 var(--display); letter-spacing: -0.035em; margin: 0; }
+.sechead h2 span { color: var(--faint); }
+.bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+.tile {
+  grid-column: span 2; position: relative; overflow: hidden; border-radius: 28px; padding: 32px 30px 34px;
+  background: linear-gradient(180deg, #131316 0%, #0b0b0d 100%); border: 1px solid rgba(255, 255, 255, 0.07);
+}
+.tile.w3 { grid-column: span 3; }
+.tile.w4 { grid-column: span 4; }
+.tile.w6 { grid-column: span 6; }
+.tile h3 { font: 650 clamp(21px, 2.3vw, 26px)/1.15 var(--display); letter-spacing: -0.022em; margin: 18px 0 8px; }
+.tile p { margin: 0; color: var(--dim); font-size: 16px; line-height: 1.5; max-width: 30em; }
+.tile p b { color: var(--fg); font-weight: 600; }
+.sym {
+  display: block; width: 46px; height: 46px; background: var(--g, #fff);
+  -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat;
+}
+.sym.sm { width: 26px; height: 26px; }
+.g-purple { --g: linear-gradient(135deg, #b47cff, #5e8bff); }
+.g-green  { --g: linear-gradient(135deg, #5df08a, #1fb5a0); }
+.g-amber  { --g: linear-gradient(135deg, #ffd25e, #ff8a3d); }
+.g-teal   { --g: linear-gradient(135deg, #6fe3ff, #3f7cff); }
+.g-pink   { --g: linear-gradient(135deg, #ff8ac8, #b45cff); }
+.g-blue   { --g: linear-gradient(135deg, #7cc4ff, #4f6bff); }
+.g-white  { --g: linear-gradient(135deg, #ffffff, #a1a1a6); }
+.icons2 { display: flex; gap: 14px; }
+
+/* The keyboard in the first tile */
+.tile.hero { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 28px; }
+.keyrow { display: flex; gap: 10px; }
+.key {
+  position: relative; width: 74px; height: 74px; border-radius: 13px; color: #f5f5f7;
+  background: linear-gradient(180deg, #2c2c30, #1b1b1e);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -2px 0 rgba(0, 0, 0, 0.5), 0 10px 26px -10px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.6);
+  font: 400 15px/1 var(--text); animation: press 4.8s ease-in-out infinite; animation-delay: var(--k);
+}
+.key.wide { width: 112px; }
+.key i { position: absolute; font-style: normal; }
+.key .tl { top: 11px; left: 12px; font-size: 19px; }
+.key .tr { top: 11px; right: 12px; font-size: 19px; }
+.key .bl { bottom: 10px; left: 12px; font-size: 11px; color: #c7c7cc; }
+.key .c1 { top: 13px; left: 0; right: 0; text-align: center; font-size: 15px; color: #c7c7cc; }
+.key .c2 { bottom: 13px; left: 0; right: 0; text-align: center; font-size: 22px; }
+@keyframes press {
+  0%, 22%, 48%, 100% { transform: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -2px 0 rgba(0, 0, 0, 0.5), 0 10px 26px -10px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.6); }
+  28%, 42% { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 12px -6px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(150, 110, 255, 0.55), 0 0 28px -4px rgba(140, 100, 255, 0.55); }
+}
+.keynote { margin-top: 14px; color: var(--faint); font-size: 14px; text-align: center; }
+
+/* Stat tile */
+.big { font: 700 clamp(56px, 7vw, 84px)/0.95 var(--display); letter-spacing: -0.045em; margin: 18px 0 2px;
+  background: linear-gradient(135deg, #ffd25e, #ff8a3d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.big + .unit { font: 600 18px/1.2 var(--display); color: var(--fg); margin-bottom: 10px; }
+
+/* Smart chips */
+.chips2 { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 11px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08); font-size: 14px; color: #e5e5ea; }
+.chip .sym { width: 17px; height: 17px; }
+
+/* Everywhere row */
+.ways { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin-top: 26px; }
+.way h4 { font: 600 16px/1.25 var(--display); margin: 12px 0 4px; letter-spacing: -0.01em; }
+.way p { font-size: 14.5px; }
+.way code { font: 13.5px/1.4 var(--mono); color: var(--fg); }
 
 section.install { margin: 88px auto 0; max-width: 640px; text-align: center; }
 h2.t { font: 700 clamp(28px, 4vw, 38px)/1.1 var(--display); letter-spacing: -0.03em; margin: 0 0 14px; }
@@ -212,15 +275,22 @@ footer a:hover { color: var(--fg); }
 
 @media (max-width: 760px) {
   header { padding: 44px 0 28px; }
-  section.points { grid-template-columns: 1fr; margin-top: 64px; }
-  section.keys, section.install { margin-top: 64px; }
+  section.features { margin-top: 80px; }
+  section.install { margin-top: 72px; }
+  .bento { grid-template-columns: 1fr; }
+  .tile, .tile.w3, .tile.w4, .tile.w6 { grid-column: auto; padding: 26px 22px 28px; border-radius: 24px; }
+  .tile.hero { grid-template-columns: 1fr; }
+  .key { width: 68px; height: 64px; } .key.wide { width: 92px; } .key .bl { font-size: 10px; left: 9px; }
+  .ways { grid-template-columns: 1fr 1fr; gap: 22px; }
+  .hero-title { gap: 16px; }
+  .appicon { width: 68px; }
+  .hero-title h1 { font-size: clamp(30px, 9vw, 40px); }
   .window { left: 4%; width: 80%; padding: 5% 6%; }
-  .row { font-size: 15px; }
   .screen { border-radius: 14px; }
   .card.ok .chips { display: none; }
   .out { -webkit-line-clamp: 3; }
 }
-@media (prefers-reduced-motion: reduce) { .frame { animation: none; } .bar::after, .badge .spin { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .key { animation: none; } .js .reveal { opacity: 1; transform: none; } .frame { animation: none; } .bar::after, .badge .spin { animation: none; } }
 </style>
 </head>
 <body>
@@ -234,7 +304,7 @@ footer a:hover { color: var(--fg); }
   </nav>
 
   <header>
-    <h1>Read any text on your screen.</h1>
+    <div class="hero-title"><img class="appicon" src="/icon.png" alt="Zero OCR app icon"><h1>Read any text on your screen.</h1></div>
     <p class="lede">Press <kbd>⇧⌘2</kbd> and drag over anything. The text is on your clipboard before you look up. Xiaomi-OCR-0 reads it entirely on your Mac.</p>
     <div class="cta">
       <a class="btn primary" id="dl" href="https://github.com/Louistuis/zero-ocr/releases/latest/download/Zero-OCR.dmg">
@@ -288,18 +358,91 @@ footer a:hover { color: var(--fg); }
     <p class="caption">In the app the card is SwiftUI Liquid Glass and the neon is a Metal shader. This is the same idea in CSS.</p>
   </div>
 
-  <section class="points">
-    <div class="point"><div class="k">Simple</div><h2>One shortcut to remember</h2><p><kbd>⇧⌘2</kbd> reads any area, or a whole window if you click. Everything else is a button on the card that appears.</p></div>
-    <div class="point"><div class="k">Smart</div><h2>More than plain text</h2><p>Tables paste as real grids, Markdown and LaTeX show formatted. Links, dates, addresses and QR codes become buttons. Translate, speak, pin, and search everything you read.</p></div>
-    <div class="point"><div class="k">Private</div><h2>Nothing leaves your Mac</h2><p>The model runs on your Mac's GPU at about 80 tokens a second, then sleeps to free its memory. No account, no upload. It works offline.</p></div>
-  </section>
+  <section class="features">
+    <div class="sechead reveal"><h2>One shortcut. <span>Everything else is a button.</span></h2></div>
+    <div class="bento">
+      <div class="tile w4 hero reveal">
+        <div>
+          <span class="sym  g-purple" style="--m:url(/sym/command.png)"></span>
+          <h3>The only thing to remember.</h3>
+          <p>Press it and drag over any text, or click a window to take all of it. A glass card opens in the corner, and the text is already on your clipboard.</p>
+        </div>
+        <div>
+          <div class="keyrow" aria-label="Shift Command 2">
+            <div class="key wide" style="--k:0s"><i class="tl">⇧</i><i class="bl">shift</i></div>
+            <div class="key" style="--k:0.12s"><i class="tr">⌘</i><i class="bl">command</i></div>
+            <div class="key" style="--k:0.24s"><i class="c1">@</i><i class="c2">2</i></div>
+          </div>
+          <div class="keynote"><b style="color:var(--dim);font-weight:600">⇧⌘1</b> reads the same area again</div>
+        </div>
+      </div>
+      <div class="tile reveal" style="--d:0.08s">
+        <span class="sym  g-green" style="--m:url(/sym/lock-shield-fill.png)"></span>
+        <h3>Private by design.</h3>
+        <p>The model runs on your Mac's GPU. No account, no upload, no analytics.</p>
+      </div>
 
-  <section class="keys" aria-label="Shortcuts">
-    <div class="row"><span>Read any area</span><kbd>⇧⌘2</kbd></div>
-    <div class="row"><span>Read the same area again</span><kbd>⇧⌘1</kbd></div>
-    <div class="row"><span>A whole window</span><span>Click instead of dragging</span></div>
-    <div class="row"><span>Images and PDFs</span><span>Drop on the menu bar icon</span></div>
-    <div class="row"><span>Terminal</span><code>zocr -d paper.pdf</code></div>
+      <div class="tile reveal">
+        <span class="sym  g-amber" style="--m:url(/sym/bolt-fill.png)"></span>
+        <div class="big">80</div><div class="unit">tokens a second</div>
+        <p>The model wakes while you select, so it is ready before you let go. It sleeps again after.</p>
+      </div>
+      <div class="tile reveal" style="--d:0.08s">
+        <span class="sym  g-teal" style="--m:url(/sym/tablecells.png)"></span>
+        <h3>Tables stay tables.</h3>
+        <p>Paste a real grid into Numbers, Excel, Pages and Notes.</p>
+      </div>
+      <div class="tile reveal" style="--d:0.16s">
+        <span class="sym  g-pink" style="--m:url(/sym/function.png)"></span>
+        <h3>Math comes out as LaTeX.</h3>
+        <p>Formulas, Markdown and tables show formatted on the card, and copy as source.</p>
+      </div>
+
+      <div class="tile w3 reveal">
+        <div class="icons2"><span class="sym  g-blue" style="--m:url(/sym/translate.png)"></span><span class="sym  g-blue" style="--m:url(/sym/speaker-wave-2-fill.png)"></span></div>
+        <h3>Translate and listen.</h3>
+        <p>Apple's on-device translation into your language, and speech in the text's own voice.</p>
+      </div>
+      <div class="tile w3 reveal" style="--d:0.08s">
+        <span class="sym  g-purple" style="--m:url(/sym/sparkles.png)"></span>
+        <h3>It knows what it read.</h3>
+        <p>Links, addresses and dates become buttons on the card.</p>
+        <div class="chips2">
+          <span class="chip"><span class="sym  g-white" style="--m:url(/sym/link.png)"></span>Open link</span>
+          <span class="chip"><span class="sym  g-white" style="--m:url(/sym/envelope-fill.png)"></span>Email</span>
+          <span class="chip"><span class="sym  g-white" style="--m:url(/sym/phone-fill.png)"></span>Call</span>
+          <span class="chip"><span class="sym  g-white" style="--m:url(/sym/map-fill.png)"></span>Maps</span>
+          <span class="chip"><span class="sym  g-white" style="--m:url(/sym/calendar-badge-plus.png)"></span>Add to Calendar</span>
+          <span class="chip"><span class="sym  g-white" style="--m:url(/sym/qrcode.png)"></span>QR code</span>
+        </div>
+      </div>
+
+      <div class="tile reveal">
+        <span class="sym  g-teal" style="--m:url(/sym/clock-arrow-circlepath.png)"></span>
+        <h3>Everything you read.</h3>
+        <p>A searchable History you can edit, read again another way, and export.</p>
+      </div>
+      <div class="tile reveal" style="--d:0.08s">
+        <span class="sym  g-pink" style="--m:url(/sym/pin-fill.png)"></span>
+        <h3>Pin it.</h3>
+        <p>Keep the text floating on screen while you type it somewhere else.</p>
+      </div>
+      <div class="tile reveal" style="--d:0.16s">
+        <span class="sym  g-green" style="--m:url(/sym/wifi-slash.png)"></span>
+        <h3>Works offline.</h3>
+        <p>On a plane, in a basement, anywhere. Nothing ever needs the internet after setup.</p>
+      </div>
+
+      <div class="tile w6 reveal">
+        <h3 style="margin-top:0">Wherever the text is.</h3>
+        <div class="ways">
+          <div class="way"><span class="sym sm g-white" style="--m:url(/sym/menubar-rectangle.png)"></span><h4>Menu bar</h4><p>Drop an image or PDF on the icon, or read the clipboard.</p></div>
+          <div class="way"><span class="sym sm g-white" style="--m:url(/sym/folder-fill.png)"></span><h4>Finder</h4><p>Right-click a file, Quick Actions, Copy Text.</p></div>
+          <div class="way"><span class="sym sm g-white" style="--m:url(/sym/macwindow.png)"></span><h4>Every app</h4><p>Select an image, then Services.</p></div>
+          <div class="way"><span class="sym sm g-white" style="--m:url(/sym/terminal-fill.png)"></span><h4>Terminal</h4><p><code>zocr -d paper.pdf</code></p></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="install">
@@ -315,7 +458,12 @@ footer a:hover { color: var(--fg); }
 </div>
 
 <script>
-(() => {
+document.documentElement.classList.add("js")
+;(() => {
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target) } }), { rootMargin: "0px 0px -8% 0px" })
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el))
+})()
+;(() => {
   // Copy button
   const copy = document.getElementById("copy")
   copy.addEventListener("click", async () => {
