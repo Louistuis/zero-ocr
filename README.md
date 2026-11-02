@@ -47,8 +47,16 @@ lines into paragraphs, the translation language, the model's idle timeout, and h
    screen recording permission, which it needs to see the area you select. Updates keep the
    permission.
 
-Requires an Apple Silicon Mac with macOS 14 or later. Liquid Glass needs macOS 26; earlier versions
-get the system material, and Translate needs macOS 15.
+## System requirements
+
+| | Minimum | Recommended |
+|---|---|---|
+| Chip | Apple M1 (Intel Macs are not supported) | Apple M2 or later. About 80 tokens a second on an M3 MacBook Air |
+| macOS | 14 Sonoma (system material instead of Liquid Glass) | 26 Tahoe for the Liquid Glass card. Translate needs 15 or later |
+| Memory | 8 GB. The model uses about 1.2 GB while it reads, nothing when it sleeps | 16 GB, to keep the model loaded next to your other apps |
+| Storage | 1 GB free: the app is 32 MB, the model 837 MB | 2 GB free, for the model plus a long History with images |
+
+An internet connection is needed once, to download the model. After that it works offline.
 
 ## How it works
 

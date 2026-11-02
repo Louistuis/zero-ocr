@@ -254,6 +254,21 @@ section.features { margin: 120px 0 0; }
 .way p { font-size: 14.5px; }
 .way code { font: 13.5px/1.4 var(--mono); color: var(--fg); }
 
+/* Requirements */
+section.reqs { margin: 120px auto 0; max-width: 880px; }
+.reqgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.req { border-radius: 28px; padding: 30px 30px 26px; background: linear-gradient(180deg, #131316 0%, #0b0b0d 100%); border: 1px solid rgba(255, 255, 255, 0.07); }
+.req.rec { border-color: rgba(150, 110, 255, 0.35); box-shadow: 0 0 60px -30px rgba(140, 100, 255, 0.6); }
+.req .k { min-height: 22px; font: 600 12px/1 var(--rounded); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); display: flex; align-items: center; gap: 8px; }
+.req.rec .k { color: #b9a4ff; }
+.req ul { list-style: none; margin: 18px 0 0; padding: 0; }
+.req li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start; padding: 13px 0; border-top: 1px solid var(--line); }
+.req li:first-child { border-top: 0; }
+.req li .sym { width: 22px; height: 22px; margin-top: 1px; }
+.req li b { display: block; font: 600 16px/1.3 var(--display); color: var(--fg); letter-spacing: -0.01em; }
+.req li span { display: block; color: var(--dim); font-size: 14px; line-height: 1.45; margin-top: 2px; }
+.reqnote { text-align: center; color: var(--faint); font-size: 13.5px; margin-top: 16px; }
+
 section.install { margin: 88px auto 0; max-width: 640px; text-align: center; }
 h2.t { font: 700 clamp(28px, 4vw, 38px)/1.1 var(--display); letter-spacing: -0.03em; margin: 0 0 14px; }
 .install p { color: var(--dim); margin: 0 auto 18px; max-width: 32em; font-size: 16px; }
@@ -277,6 +292,9 @@ footer a:hover { color: var(--fg); }
   header { padding: 44px 0 28px; }
   section.features { margin-top: 80px; }
   section.install { margin-top: 72px; }
+  section.reqs { margin-top: 80px; }
+  .reqgrid { grid-template-columns: 1fr; }
+  .req { padding: 24px 22px 18px; border-radius: 24px; }
   .bento { grid-template-columns: 1fr; }
   .tile, .tile.w3, .tile.w4, .tile.w6 { grid-column: auto; padding: 26px 22px 28px; border-radius: 24px; }
   .tile.hero { grid-template-columns: 1fr; }
@@ -316,7 +334,7 @@ footer a:hover { color: var(--fg); }
         View on GitHub
       </a>
     </div>
-    <p class="fine">Free and MIT licensed · Apple Silicon, macOS 14+ · 12 MB, plus the model once (837 MB)</p>
+    <p class="fine">Free and MIT licensed · Apple silicon, macOS 14 or later · 13 MB, plus the model once (837 MB)</p>
   </header>
 
   <div class="stagewrap">
@@ -443,6 +461,31 @@ footer a:hover { color: var(--fg); }
         </div>
       </div>
     </div>
+  </section>
+
+  <section class="reqs">
+    <div class="sechead reveal"><h2>Runs on any Apple silicon Mac. <span>Shines on a newer one.</span></h2></div>
+    <div class="reqgrid">
+      <div class="req reveal">
+        <div class="k"><span class="sym sm g-white" style="--m:url(/sym/laptopcomputer.png)"></span>Minimum</div>
+        <ul>
+          <li><span class="sym g-white" style="--m:url(/sym/cpu-fill.png)"></span><div><b>Apple M1</b><span>Any Mac with Apple silicon. Intel Macs are not supported.</span></div></li>
+          <li><span class="sym g-white" style="--m:url(/sym/macwindow.png)"></span><div><b>macOS 14 Sonoma</b><span>With the system material instead of Liquid Glass.</span></div></li>
+          <li><span class="sym g-white" style="--m:url(/sym/memorychip-fill.png)"></span><div><b>8 GB memory</b><span>The model uses about 1.2 GB while it reads, and nothing when it sleeps.</span></div></li>
+          <li><span class="sym g-white" style="--m:url(/sym/internaldrive-fill.png)"></span><div><b>1 GB free space</b><span>The app is 32 MB. The model is 837 MB, downloaded once.</span></div></li>
+        </ul>
+      </div>
+      <div class="req rec reveal" style="--d:0.08s">
+        <div class="k"><span class="sym sm g-purple" style="--m:url(/sym/checkmark-seal-fill.png)"></span>Recommended</div>
+        <ul>
+          <li><span class="sym g-purple" style="--m:url(/sym/cpu-fill.png)"></span><div><b>Apple M2 or later</b><span>About 80 tokens a second on an M3 MacBook Air. Pro and Max chips are faster still.</span></div></li>
+          <li><span class="sym g-purple" style="--m:url(/sym/macwindow.png)"></span><div><b>macOS 26 Tahoe</b><span>For the Liquid Glass card. Translate needs macOS 15 or later.</span></div></li>
+          <li><span class="sym g-purple" style="--m:url(/sym/memorychip-fill.png)"></span><div><b>16 GB memory</b><span>Room to keep the model loaded next to your other apps for instant reads.</span></div></li>
+          <li><span class="sym g-purple" style="--m:url(/sym/internaldrive-fill.png)"></span><div><b>2 GB free space</b><span>Space for the model plus a long History of reads with their images.</span></div></li>
+        </ul>
+      </div>
+    </div>
+    <p class="reqnote">An internet connection is needed once, to download the model. After that it works offline.</p>
   </section>
 
   <section class="install">

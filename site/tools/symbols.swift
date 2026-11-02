@@ -6,7 +6,7 @@ let names = ["command", "lock.shield.fill", "bolt.fill", "tablecells", "function
              "speaker.wave.2.fill", "link", "envelope.fill", "phone.fill", "map.fill", "calendar.badge.plus",
              "qrcode", "clock.arrow.circlepath", "pin.fill", "folder.fill", "menubar.rectangle", "terminal.fill",
              "text.viewfinder", "wifi.slash", "cpu.fill", "macwindow", "doc.richtext.fill", "arrow.down.circle.fill",
-             "checkmark.seal.fill", "sparkles"]
+             "checkmark.seal.fill", "sparkles", "memorychip.fill", "internaldrive.fill", "laptopcomputer"]
 let out = URL(fileURLWithPath: CommandLine.arguments[1])
 for name in names {
     let cfg = NSImage.SymbolConfiguration(pointSize: 120, weight: .medium)
