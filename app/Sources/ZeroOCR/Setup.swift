@@ -8,7 +8,7 @@ final class Setup: NSObject, URLSessionDownloadDelegate {
 
     private var window: NSWindow?
     private let modelRow = Step(symbol: "arrow.down.circle", title: "Download the model",
-                                detail: "Xiaomi-OCR-0, 837 MB, once. It never leaves this Mac.")
+                                detail: "Xiaomi-OCR-0, \(Store.downloadMB) MB, once. It never leaves this Mac.")
     private let screenRow = Step(symbol: "rectangle.dashed", title: "Allow screen reading",
                                  detail: "So Zero OCR can see the area you select.")
     private let tryRow = Step(symbol: "command", title: "Press ⇧⌘2 and drag over any text",

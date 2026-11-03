@@ -24,7 +24,13 @@ final class GlowView: NSView {
     var state: GlowState?
 
     private let metal = CAMetalLayer()
-    private static let device = MTLCreateSystemDefaultDevice()
+    /// On Intel Macs with two GPUs, the integrated one, so the neon never wakes the discrete GPU.
+    private static let device: MTLDevice? = {
+        #if arch(x86_64)
+        if let low = MTLCopyAllDevices().first(where: \.isLowPower) { return low }
+        #endif
+        return MTLCreateSystemDefaultDevice()
+    }()
     private static let pipeline: MTLRenderPipelineState? = {
         guard let device, let lib = try? device.makeLibrary(source: shader, options: nil) else { return nil }
         let d = MTLRenderPipelineDescriptor()
@@ -60,7 +66,8 @@ final class GlowView: NSView {
         resize()
     }
 
-    private var scale: CGFloat { window?.backingScaleFactor ?? 2 }
+    /// The Intel edition draws at 1x: the glow is soft light, and it is a quarter of the pixels.
+    private var scale: CGFloat { Edition.intel ? 1 : window?.backingScaleFactor ?? 2 }
 
     private func resize() {
         metal.contentsScale = scale

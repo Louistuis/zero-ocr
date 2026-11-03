@@ -39,6 +39,7 @@ final class App: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemVali
                                                      andEventID: AEEventID(kAEGetURL))
         Server.shared.startReaper()
         if Setup.shared.needed { Setup.shared.show() }
+        suggestAppleSiliconEdition()
 
         // It replaces the system's text reader, so it starts with the Mac by default (once; Settings wins after).
         if !UserDefaults.standard.bool(forKey: "loginItemSet") {
@@ -128,10 +129,23 @@ final class App: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemVali
         a.runModal()
     }
 
+    /// Someone who downloaded the Intel edition onto an Apple silicon Mac hears about the faster one, once.
+    private func suggestAppleSiliconEdition() {
+        guard Edition.intel, Edition.translated, !UserDefaults.standard.bool(forKey: "toldAboutAppleSilicon") else { return }
+        UserDefaults.standard.set(true, forKey: "toldAboutAppleSilicon")
+        let a = NSAlert()
+        a.messageText = "This Mac has Apple silicon"
+        a.informativeText = "This is the Intel edition of Zero OCR, which runs here through Rosetta. The Apple silicon edition reads many times faster."
+        a.addButton(withTitle: "Get the Apple Silicon Edition")
+        a.addButton(withTitle: "Not Now")
+        NSApp.activate(ignoringOtherApps: true)
+        if a.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(URL(string: "https://zero.lou15.com/#editions")!) }
+    }
+
     @objc private func about() {
         NSApp.activate(ignoringOtherApps: true)
         let credits = NSAttributedString(
-            string: "Text recognition by Xiaomi-OCR-0 (Apache-2.0), run with llama.cpp (MIT). Everything stays on this Mac.\n\nzero.lou15.com",
+            string: "\(Edition.name) edition. Text recognition by Xiaomi-OCR-0 (Apache-2.0), run with llama.cpp (MIT). Everything stays on this Mac.\n\nzero.lou15.com",
             attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor])
         NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
     }

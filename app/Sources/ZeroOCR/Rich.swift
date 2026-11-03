@@ -1,4 +1,13 @@
 import SwiftUI
+
+extension RichText {
+    /// Plain text needs no rendering; everything else gets the document treatment.
+    static func wanted(_ mode: Mode, _ text: String) -> Bool {
+        mode != .text || text.contains("$") || text.contains("\\(") || text.contains("| ---") || text.hasPrefix("#")
+    }
+}
+
+#if !arch(x86_64)
 import WebKit
 
 /// Markdown, tables and LaTeX, rendered like a document: marked + KaTeX, bundled, offline,
@@ -13,11 +22,6 @@ struct RichText: View {
     var body: some View {
         RichWeb(text: text, mode: mode, html: html, height: $height)
             .frame(height: min(max(height, 18), maxHeight))
-    }
-
-    /// Plain text needs no rendering; everything else gets the document treatment.
-    static func wanted(_ mode: Mode, _ text: String) -> Bool {
-        mode != .text || text.contains("$") || text.contains("\\(") || text.contains("| ---") || text.hasPrefix("#")
     }
 }
 
@@ -108,3 +112,4 @@ private struct RichWeb: NSViewRepresentable {
         }
     }
 }
+#endif

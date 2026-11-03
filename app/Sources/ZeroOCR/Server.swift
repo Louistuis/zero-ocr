@@ -1,6 +1,6 @@
 import Foundation
 
-/// Runs the bundled llama-server (llama.cpp, Metal) on a random localhost port with a random API key,
+/// Runs the bundled llama-server (llama.cpp: Metal on Apple silicon, the CPU on Intel) on a random localhost port with a random API key,
 /// starting it on demand and stopping it after an idle period so the model costs no memory when unused.
 /// The app and the `zocr` command share one server through server.json.
 final class Server: @unchecked Sendable {
@@ -30,7 +30,7 @@ final class Server: @unchecked Sendable {
     /// Seconds without a read before the model is unloaded; 0 keeps it loaded.
     var keepLoaded: TimeInterval {
         let v = UserDefaults.standard.object(forKey: "keepLoaded") as? Double
-        return v ?? 600
+        return v ?? (Edition.intel ? 180 : 600)
     }
 
     var isRunning: Bool { lock.withLock { state != nil } }
@@ -80,8 +80,9 @@ final class Server: @unchecked Sendable {
         p.executableURL = exe
         p.arguments = ["-m", Store.model.url.path, "--mmproj", Store.projector.url.path,
                        "--host", "127.0.0.1", "--port", String(port), "--api-key", key,
-                       "-ngl", "99", "-c", "12288", "-np", "1", "--jinja", "--no-webui",
-                       "--reasoning-budget", "0", "--temp", "0"]
+                       "-np", "1", "--jinja", "--no-webui", "--reasoning-budget", "0", "--temp", "0",
+                       "--cache-ram", "0", "-ctxcp", "0"]   // every read is a new image: nothing to cache or resume
+            + (Edition.intel ? Server.intelArgs : ["-ngl", "99", "-c", "12288"])
         FileManager.default.createFile(atPath: Store.serverLog.path, contents: nil)
         let log = try FileHandle(forWritingTo: Store.serverLog)
         p.standardOutput = log
@@ -109,6 +110,13 @@ final class Server: @unchecked Sendable {
         }
         stop()
         throw Failure.failedToStart
+    }
+
+    /// The CPU, with a context that still fits a full page and its Markdown. llama.cpp repacks the weights
+    /// for faster AVX2 math; on a Mac with less than 8 GB the model reads straight from the file instead,
+    /// which keeps the engine near 0.8 GB at its peak instead of 1 GB.
+    private static var intelArgs: [String] {
+        ["-ngl", "0", "-c", "8192"] + (ProcessInfo.processInfo.physicalMemory < 7 << 30 ? ["--no-repack"] : [])
     }
 
     func stop() {

@@ -15,7 +15,7 @@ enum Prefs {
     }
 
     static let defaults: [String: Any] = [
-        Key.keepLoaded: 600.0, Key.history: true, Key.sounds: true, Key.joinLines: false,
+        Key.keepLoaded: Edition.intel ? 180.0 : 600.0, Key.history: true, Key.sounds: true, Key.joinLines: false,
         Key.toastSeconds: 4.0, Key.translateTo: Locale.current.language.languageCode?.identifier ?? "en",
         Key.neon: true, Key.finderMode: Mode.text.rawValue,
     ]

@@ -4,7 +4,10 @@ import UniformTypeIdentifiers
 
 /// Turns anything readable into the PNGs the model sees: one per image, one per PDF page.
 enum Imaging {
-    static let maxPixels = 2560.0 * 1600.0   // bigger only slows the read; text stays legible well below
+    /// Bigger only slows the read; text stays legible well below. The Intel edition stops at 1.6 MP: real
+    /// pages read the same as at 4 MP (99.8% of characters) from fewer than half the image tokens, and
+    /// those tokens are most of the work on a CPU.
+    static let maxPixels = Edition.intel ? 1600.0 * 1000.0 : 2560.0 * 1600.0
     /// Small crops (a word, a line) read much better scaled up first. Below about 200k pixels the
     /// quantised model starts to guess (the low-res test line went from wrong to exact at 2x).
     static let minPixels = 200_000.0

@@ -4,10 +4,10 @@ import SwiftUI
 // MARK: glass
 
 extension View {
-    /// Liquid Glass on macOS 26, a material on older systems.
+    /// Liquid Glass on macOS 26, a material on older systems and in the lighter Intel edition.
     @ViewBuilder
     func glassCard(radius: CGFloat) -> some View {
-        if #available(macOS 26.0, *) {
+        if !Edition.intel, #available(macOS 26.0, *) {
             self.glassEffect(.regular, in: .rect(cornerRadius: radius))
         } else {
             self.background(.regularMaterial, in: RoundedRectangle(cornerRadius: radius, style: .continuous))
@@ -17,7 +17,7 @@ extension View {
 
     @ViewBuilder
     func glassButton() -> some View {
-        if #available(macOS 26.0, *) { self.buttonStyle(.glass) } else { self.buttonStyle(.bordered) }
+        if !Edition.intel, #available(macOS 26.0, *) { self.buttonStyle(.glass) } else { self.buttonStyle(.bordered) }
     }
 }
 

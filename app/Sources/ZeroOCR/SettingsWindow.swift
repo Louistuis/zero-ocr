@@ -68,7 +68,7 @@ struct SettingsView: View {
                     ForEach(Mode.allCases, id: \.self) { Text($0.title).tag($0.rawValue) }
                 }
                 Picker("Keep the model loaded", selection: $keepLoaded) {
-                    Text("1 minute").tag(60.0); Text("10 minutes").tag(600.0); Text("1 hour").tag(3600.0); Text("Always").tag(0.0)
+                    Text("1 minute").tag(60.0); Text("3 minutes").tag(180.0); Text("10 minutes").tag(600.0); Text("1 hour").tag(3600.0); Text("Always").tag(0.0)
                 }
             }
 
